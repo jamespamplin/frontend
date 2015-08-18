@@ -8,4 +8,4 @@ echo "Npm installation."
 npm prune --production
 npm install --production
 
-grunt --stack --no-color clean install:jspm
+./grunt-tc --stack --no-color install:jspm

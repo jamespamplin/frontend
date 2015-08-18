@@ -1,7 +1,6 @@
 module.exports = function(config) {
   config.set({
     basePath: '../../..',
-    frameworks: ['jasmine'],
     files: [
         {pattern: 'public/jspm_packages/github/es-shims/es5-shim@4.1.1/es5-shim.min.js', included: true},
         {pattern: 'public/jspm_packages/!(system).js', included: false},
@@ -22,17 +21,6 @@ module.exports = function(config) {
     ],
 
     exclude: [],
-
-    // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
-    reporters: ['progress'],
-    port: 9876,
-    colors: true,
-    // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
-    logLevel: config.LOG_ERROR,
-    autoWatch: true,
-
-    browsers: ['PhantomJS'],
-    captureTimeout: 60000,
-    singleRun: false
+    logLevel: config.LOG_ERROR
   });
 };

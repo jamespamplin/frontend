@@ -5,7 +5,7 @@ set -o errexit
 
 ./dist-npm-tc
 
-./grunt-tc validate test:unit compile
+./grunt-tc validate test
 ./sbt-tc "project root" test
 
 echo "Tested everything."
