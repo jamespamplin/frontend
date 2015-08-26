@@ -1,7 +1,6 @@
 package model
 
 import common.Edition
-import common.dfp.DfpAgent
 import implicits.Dates
 import org.scala_tools.time.Imports._
 import views.support.CardStyleForFrontend
@@ -37,12 +36,9 @@ trait Trail extends Elements with Tags with Dates {
     isAdvertisementFeature && webPublicationDate.isOlderThan(2.weeks)
   }
 
-  override def isSponsored(maybeEdition: Option[Edition]): Boolean =
-    DfpAgent.isSponsored(tags, Some(section))
-  override lazy val isAdvertisementFeature: Boolean =
-    DfpAgent.isAdvertisementFeature(tags, Some(section))
-  override lazy val isFoundationSupported: Boolean =
-    DfpAgent.isFoundationSupported(tags, Some(section))
+  override def isSponsored(maybeEdition: Option[Edition]): Boolean = false
+  override lazy val isAdvertisementFeature: Boolean = false
+  override lazy val isFoundationSupported: Boolean = false
 
   def faciaUrl: Option[String] = this match {
     case t: Trail => Option(t.url)

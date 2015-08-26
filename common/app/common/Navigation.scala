@@ -268,8 +268,7 @@ object Navigation {
     }
   }
 
-  def topLevelItem(navigation: Seq[NavItem], page: MetaData): Option[NavItem] = page.customSignPosting orElse
-    navFromOverride(navigation, page) orElse
+  def topLevelItem(navigation: Seq[NavItem], page: MetaData): Option[NavItem] = navFromOverride(navigation, page) orElse
     navigation.find(_.exactFor(page)) orElse
     navigation.find(_.currentFor(page)) orElse                /* This searches the top level nav for tags in the page */
     navigation.find(_.currentForIncludingAllTags(page))       /* This searches the whole nav for tags in the page */

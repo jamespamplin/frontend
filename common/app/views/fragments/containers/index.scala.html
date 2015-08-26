@@ -3,7 +3,6 @@
 @import views.html.fragments.containers.facia_cards.{slice, date}
 @import views.support.{GetClasses, PreviousAndNext}
 @import common.LinkTo
-@import dfp.DfpAgent
 @import services.FaciaContentConvert
 
 @* TODO Consolidate this with the master container template to get rid of repetition *@
@@ -11,12 +10,6 @@
 @defining(page.webTitle) { case (webTitle) =>
     <section class="@GetClasses.forTagContainer(webTitle.nonEmpty)"
         data-link-name="all index"
-        @DfpAgent.sponsorshipTag(config).map { keyword =>
-            data-keywords="@keyword"
-        }
-        @DfpAgent.sponsorshipType(config).map { sponsorshipType =>
-            data-sponsorship="@sponsorshipType"
-        }
         data-component="all index">
         <div class="fc-container__inner">
             <div class="fc-container__header js-container__header">

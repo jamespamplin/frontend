@@ -123,33 +123,6 @@ object Switches {
     exposeClientSide = false
   )
 
-  val CircuitBreakerSwitch = Switch(
-    "Performance",
-    "circuit-breaker",
-    "If this switch is switched on then the Content API circuit breaker will be operational",
-    safeState = Off,
-    sellByDate = never,
-    exposeClientSide = false
-  )
-
-  val MemcachedSwitch = Switch(
-    "Performance",
-    "memcached-action",
-    "If this switch is switched on then the MemcacheAction will be operational",
-    safeState = On,
-    sellByDate = never,
-    exposeClientSide = false
-  )
-
-  val MemcachedFallbackSwitch = Switch(
-    "Performance",
-    "memcached-fallback",
-    "If this switch is switched on then the MemcachedFallback will be operational",
-    safeState = Off,
-    sellByDate = never,
-    exposeClientSide = false
-  )
-
   val IncludeBuildNumberInMemcachedKey = Switch(
     "Performance",
     "memcached-build-number",
@@ -641,15 +614,6 @@ object Switches {
     safeState = On,
     sellByDate = never,
     exposeClientSide = false
-  )
-
-  val NotificationsSwitch = Switch(
-    "Feature",
-    "notifications",
-    "Notifications",
-    safeState = Off,
-    sellByDate = new LocalDate(2015, 10, 15),
-    exposeClientSide = true
   )
 
   val Hmtl5MediaCompatibilityCheck = Switch(

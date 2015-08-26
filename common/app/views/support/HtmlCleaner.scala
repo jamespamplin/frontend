@@ -114,8 +114,6 @@ case class VideoEmbedCleaner(article: Article) extends HtmlCleaner {
           .addClass("js-gu-media--enhance gu-media gu-media--video")
           .wrap("<div class=\"gu-media-wrapper gu-media-wrapper--video u-responsive-ratio u-responsive-ratio--hd\"></div>")
 
-        val flashMediaElement = conf.Static("flash/components/mediaelement/flashmediaelement.swf").path
-
         val mediaId = element.attr("data-media-id")
         val asset = findVideoFromId(mediaId)
 
@@ -136,11 +134,7 @@ case class VideoEmbedCleaner(article: Article) extends HtmlCleaner {
 
         asset.foreach(video => {
           element.append(
-            s"""<object type="application/x-shockwave-flash" data="$flashMediaElement" width="620" height="350">
-                <param name="allowFullScreen" value="true" />
-                <param name="movie" value="$flashMediaElement" />
-                <param name="flashvars" value="controls=true&amp;file=${video.url.getOrElse("")}" />
-                Sorry, your browser is unable to play this video.
+            s"""<object type="application/x-shockwave-flash" width="620" height="350">
               </object>""")
 
         })

@@ -1,9 +1,6 @@
 package model
 
-import common.dfp.{AdSize, AdSlot, DfpAgent}
-import common.{Edition, ManifestData, NavItem, Pagination}
-import conf.Configuration
-import model.meta.{Guardian, LinkedData, PotentialAction, WebPage}
+import common.{Edition, NavItem, Pagination}
 import play.api.libs.json.{JsBoolean, JsString, JsValue}
 
 /**
@@ -15,7 +12,7 @@ trait MetaData extends Tags {
   def webTitle: String
   def analyticsName: String
   def url: String  = s"/$id"
-  def webUrl: String = s"${Configuration.site.host}$url"
+  def webUrl: String = s"url"
   def linkText: String = webTitle
   def pagination: Option[Pagination] = None
   def description: Option[String] = None
@@ -32,8 +29,6 @@ trait MetaData extends Tags {
   // this is here so it can be included in analytics.
   // Basically it helps us understand the impact of changes and needs
   // to be an integral part of each page
-  def buildNumber: String = ManifestData.build
-  def revision: String = ManifestData.revision
 
   //must be one of... http://schema.org/docs/schemas.html
   def schemaType: Option[String] = None
@@ -46,7 +41,6 @@ trait MetaData extends Tags {
   def adUnitSuffix = section
 
   def hasPageSkin(edition: Edition) = false
-  def sizeOfTakeoverAdsInSlot(slot: AdSlot, edition: Edition): Seq[AdSize] = Nil
   def hasAdInBelowTopNavSlot(edition: Edition) = false
   def omitMPUsFromContainers(edition: Edition) = false
   lazy val isInappropriateForSponsorship: Boolean = false
@@ -60,20 +54,15 @@ trait MetaData extends Tags {
     ("pageId", JsString(id)),
     ("section", JsString(section)),
     ("webTitle", JsString(webTitle)),
-    ("buildNumber", JsString(buildNumber)),
-    ("revisionNumber", JsString(revision)),
     ("analyticsName", JsString(analyticsName)),
     ("isFront", JsBoolean(isFront)),
-    ("adUnit", JsString(s"/${Configuration.commercial.dfpAccountId}/${Configuration.commercial.dfpAdUnitRoot}/$adUnitSuffix/ng")),
-    ("isSurging", JsString(isSurging.mkString(","))),
-    ("isAdvertisementFeature", JsBoolean(isAdvertisementFeature)),
-    ("videoJsFlashSwf", JsString(conf.Static("flash/components/video-js-swf/video-js.swf").path)),
-    ("videoJsVpaidSwf", JsString(conf.Static("flash/components/video-js-vpaid/video-js.swf").path))
+    ("adUnit", JsString(s"ng")),
+    ("isSurging", JsString(isSurging.mkString(",")))
   )
 
   def openGraph: Map[String, String] = Map(
     "og:site_name" -> "the Guardian",
-    "fb:app_id"    -> Configuration.facebook.appId,
+    "fb:app_id"    -> "facebook",
     "og:type"      -> "website",
     "og:url"       -> webUrl) ++ (iosId("applinks") map (iosId => List(
     "al:ios:url" -> s"gnmguardian://$iosId",
@@ -95,11 +84,6 @@ trait MetaData extends Tags {
     "twitter:app:id:googleplay" -> "com.guardian"
   )) getOrElse Nil)
 
-  def linkedData: List[LinkedData] = List(
-    Guardian()) ++ (iosType.map(_ => List(
-    WebPage(webUrl, PotentialAction(target = "android-app://com.guardian/" + webUrl.replace("://", "/")))
-  )).getOrElse(Nil))
-
   def iosId(referrer: String): Option[String] = iosType.map(iosType => s"$id?contenttype=$iosType&source=$referrer")
 
   // this could be article/front/list, it's a hint to the ios app to start the right engine
@@ -107,15 +91,10 @@ trait MetaData extends Tags {
 
   def cacheSeconds = 60
 
-  def customSignPosting: Option[NavItem] = None
-
-  override def isSponsored(maybeEdition: Option[Edition]): Boolean =
-    DfpAgent.isSponsored(tags, Some(section), maybeEdition)
-  override lazy val isFoundationSupported: Boolean = DfpAgent.isFoundationSupported(tags, Some(section))
-  override lazy val isAdvertisementFeature: Boolean = DfpAgent.isAdvertisementFeature(tags, Some(section))
-  lazy val isExpiredAdvertisementFeature: Boolean =
-    DfpAgent.isExpiredAdvertisementFeature(id, tags, Some(section))
-  lazy val sponsorshipTag: Option[Tag] = DfpAgent.sponsorshipTag(tags, Some(section))
+  override def isSponsored(maybeEdition: Option[Edition]): Boolean = false
+  override lazy val isFoundationSupported: Boolean = false
+  override lazy val isAdvertisementFeature: Boolean = false
+  lazy val isExpiredAdvertisementFeature: Boolean = false
 
   def isPreferencesPage = metaData.get("isPreferencesPage").collect{ case prefs: JsBoolean => prefs.value } getOrElse false
 }
@@ -302,14 +281,14 @@ trait Tags {
   lazy val types: Seq[Tag] = tagsOfType("type")
 
   def isSponsored(maybeEdition: Option[Edition] = None): Boolean
-  def hasMultipleSponsors: Boolean = DfpAgent.hasMultipleSponsors(tags)
+  def hasMultipleSponsors: Boolean = false
   def isAdvertisementFeature: Boolean
-  def hasMultipleFeatureAdvertisers: Boolean = DfpAgent.hasMultipleFeatureAdvertisers(tags)
+  def hasMultipleFeatureAdvertisers: Boolean = false
   def isFoundationSupported: Boolean
-  def hasInlineMerchandise: Boolean = DfpAgent.hasInlineMerchandise(tags)
+  def hasInlineMerchandise: Boolean = false
   lazy val richLink: Option[String] = tags.flatMap(_.richLinkId).headOption
   lazy val openModule: Option[String] = tags.flatMap(_.openModuleId).headOption
-  def sponsor: Option[String] = DfpAgent.getSponsor(tags)
+  def sponsor: Option[String] = None
   def sponsorshipType: Option[String] = {
     if (isSponsored()) {
       Option("sponsoredfeatures")

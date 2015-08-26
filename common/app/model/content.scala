@@ -6,10 +6,7 @@ import com.gu.contentapi.client.model.{Asset, Content => ApiContent, Element => 
 import com.gu.facia.api.utils._
 import com.gu.facia.client.models.TrailMetaData
 import com.gu.util.liveblogs.{Parser => LiveBlogParser}
-import common.dfp.DfpAgent
 import common.{LinkCounts, LinkTo, Reference}
-import conf.Configuration.facebook
-import conf.Switches.FacebookShareUseTrailPicFirstSwitch
 import layout.ContentWidths.GalleryMedia
 import ophan.SurgingContentAgent
 import org.joda.time.DateTime
@@ -82,23 +79,6 @@ class Content protected (val delegate: contentapi.Content) extends Trail with Me
     cardStyle == Feature && hasLargeContributorImage && contributors.length == 1
 
   private def largestImageUrl(i: ImageContainer) = i.largestImage.flatMap(_.url)
-
-  protected def bestOpenGraphImage: Option[String] = {
-    if (FacebookShareUseTrailPicFirstSwitch.isSwitchedOn) {
-      trailPicture.flatMap(largestImageUrl)
-    } else {
-      None
-    }
-  }
-
-  // read this before modifying
-  // https://developers.facebook.com/docs/opengraph/howtos/maximizing-distribution-media-content#images
-  lazy val openGraphImage: String = ImgSrc(rawOpenGraphImage, FacebookOpenGraphImage)
-
-  private lazy val rawOpenGraphImage: String = bestOpenGraphImage
-    .orElse(mainPicture.flatMap(largestImageUrl))
-    .orElse(trailPicture.flatMap(largestImageUrl))
-    .getOrElse(facebook.imageFallback)
 
   lazy val shouldHideAdverts: Boolean = fields.get("shouldHideAdverts").exists(_.toBoolean)
   override lazy val isInappropriateForSponsorship: Boolean = fields.get("isInappropriateForSponsorship").exists(_.toBoolean)
@@ -249,17 +229,6 @@ class Content protected (val delegate: contentapi.Content) extends Trail with Me
     else 300
   }
 
-  override def openGraph: Map[String, String] = super.openGraph ++ Map(
-    "og:title" -> webTitle,
-    "og:description" -> trailText.map(StripHtmlTagsAndUnescapeEntities(_)).getOrElse(""),
-    "og:image" -> openGraphImage
-  )
-
-  override def cards: List[(String, String)] = super.cards ++ List(
-    "twitter:app:url:googleplay" -> webUrl.replace("http", "guardian"),
-    "twitter:image" -> rawOpenGraphImage
-  ) ++ contributorTwitterHandle.map(handle => "twitter:creator" -> s"@$handle").toList
-
   override def elements: Seq[Element] = delegate.elements
     .map(_.zipWithIndex.map { case (element, index) => Element(element, index) })
     .getOrElse(Nil)
@@ -276,7 +245,7 @@ class Content protected (val delegate: contentapi.Content) extends Trail with Me
   lazy val showSectionNotTag: Boolean = tags.exists{ tag => tag.id == "childrens-books-site/childrens-books-site" && tag.tagType == "blog" }
 
   lazy val sectionLabelLink : String = {
-    if (showSectionNotTag || DfpAgent.isAdvertisementFeature(tags, Some(section))) {
+    if (showSectionNotTag) {
       section
     } else tags.find(_.isKeyword) match {
       case Some(tag) => tag.id
@@ -379,16 +348,6 @@ class Article(delegate: contentapi.Content) extends Content(delegate) with Light
     ) ++ bookReviewIsbn
   }
 
-  override def openGraph: Map[String, String] = super.openGraph ++ Map(
-    ("og:type", "article"),
-    ("article:published_time", webPublicationDate.toString()),
-    ("article:modified_time", lastModified.toString()),
-    ("article:tag", keywords.map(_.name).mkString(",")),
-    ("article:section", sectionName),
-    ("article:publisher", "https://www.facebook.com/theguardian"),
-    ("article:author", contributors.map(_.webUrl).mkString(","))
-  )
-
   override def cards: List[(String, String)] = super.cards ++ List(
     "twitter:card" -> "summary_large_image"
   )
@@ -418,13 +377,6 @@ abstract class Media(delegate: contentapi.Content) extends Content(delegate) {
   override def metaData: Map[String, JsValue] = super.metaData ++ Map("isPodcast" -> JsBoolean(isPodcast))
 
   override lazy val analyticsName = s"GFE:$section:$contentType:${id.substring(id.lastIndexOf("/") + 1)}"
-  override def openGraph: Map[String, String] = super.openGraph ++ Map(
-    "og:type" -> "video",
-    "og:type" -> "video",
-    "og:video:type" -> "text/html",
-    "og:video" -> webUrl,
-    "video:tag" -> keywords.map(_.name).mkString(",")
-  )
 }
 
 class Audio(delegate: contentapi.Content) extends Media(delegate) {
@@ -514,29 +466,10 @@ class Gallery(delegate: contentapi.Content) extends Content(delegate) with Light
     "lightboxImages" -> lightbox
   )
 
-  override lazy val openGraphImage: String = {
-    val imageUrl = bestOpenGraphImage
-      .orElse(galleryImages.headOption.flatMap(_.largestImage.flatMap(_.url)))
-      .getOrElse(conf.Configuration.facebook.imageFallback)
-
-    ImgSrc(imageUrl, FacebookOpenGraphImage)
-  }
-
-  override def openGraphImages: Seq[String] = largestCrops.flatMap(_.url).map(ImgSrc(_, FacebookOpenGraphImage))
-
   override def schemaType = Some("http://schema.org/ImageGallery")
 
   // if you change these rules make sure you update IMAGES.md (in this project)
   override def trailPicture: Option[ImageContainer] = thumbnail
-
-  override def openGraph: Map[String, String] = super.openGraph ++ Map(
-    "og:type" -> "article",
-    "article:published_time" -> webPublicationDate.toString,
-    "article:modified_time" -> lastModified.toString,
-    "article:section" -> sectionName,
-    "article:tag" -> keywords.map(_.name).mkString(","),
-    "article:author" -> contributors.map(_.webUrl).mkString(",")
-  )
 
   lazy val galleryImages: Seq[ImageElement] = images.filter(_.isGallery)
   override lazy val lightboxImages = galleryImages

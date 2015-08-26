@@ -1,10 +1,8 @@
 package model
 
 import com.gu.facia.api.models.FaciaContent
-import conf.Switches
 import implicits.FaciaContentImplicits._
 import implicits.FaciaContentFrontendHelpers._
-import conf.{Switches,Configuration}
 import layout.ItemClasses
 
 object FaciaDisplayElement {
@@ -17,8 +15,6 @@ object FaciaDisplayElement {
           EndSlateComponents.fromFaciaContent(faciaContent).toUriPath,
           InlineImage.fromFaciaContent(faciaContent)
         ))
-      case _ if faciaContent.isCrossword && Switches.CrosswordSvgThumbnailsSwitch.isSwitchedOn =>
-        faciaContent.maybeContentId map CrosswordSvg
       case _ if faciaContent.imageSlideshowReplace && itemClasses.canShowSlideshow =>
         InlineSlideshow.fromFaciaContent(faciaContent)
       case _ => InlineImage.fromFaciaContent(faciaContent)
@@ -47,12 +43,6 @@ object InlineImage {
 }
 
 case class InlineImage(imageContainer: ImageContainer) extends FaciaDisplayElement
-
-case class CrosswordSvg(id: String) extends FaciaDisplayElement {
-  def persistenceId = id.stripPrefix("crosswords/")
-
-  def imageUrl = s"${Configuration.ajax.url}/$id.svg"
-}
 
 object InlineSlideshow {
   def fromFaciaContent(faciaContent: FaciaContent): Option[InlineSlideshow] =

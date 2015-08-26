@@ -100,16 +100,6 @@ object SystemMetrics extends implicits.Numbers {
       case _ => -1
     }
   )
-
-  private lazy val buildNumber = ManifestData.build match {
-    case string if string.isInt => string.toInt
-    case _ => -1 // dev machines do not have a build number
-  }
-
-  object BuildNumberMetric extends GaugeMetric("build-number", "Build number",
-    () => buildNumber,
-    StandardUnit.None
-  )
 }
 
 object S3Metrics {
@@ -185,92 +175,6 @@ object PaMetrics {
   val all: Seq[FrontendMetric] = Seq(PaApiHttpTimingMetric, PaApiHttpOkMetric, PaApiHttpErrorMetric)
 }
 
-object DiscussionMetrics {
-  object DiscussionHttpTimingMetric extends FrontendTimingMetric(
-    "discussion-api-calls",
-    "outgoing requests to discussion api"
-  )
-}
-
-object AdminMetrics {
-  object ConfigUpdateCounter extends CountMetric("config_updates", "number of times config was updated")
-  object ConfigUpdateErrorCounter extends CountMetric("config_update_errors", "number of times config update failed")
-
-  object SwitchesUpdateCounter extends CountMetric("switches_updates", "number of times switches was updated")
-  object SwitchesUpdateErrorCounter extends CountMetric("switches_update_errors", "number of times switches update failed")
-}
-
-object FaciaMetrics {
-
-  object FaciaToApplicationRedirectMetric extends CountMetric(
-    "redirects-to-applications",
-    "Number of requests to facia that have been redirected to Applications via X-Accel-Redirect"
-  )
-
-  object FaciaToRssRedirectMetric extends CountMetric(
-    "redirects-to-rss",
-    "Number of requests to Facia that have been redirected to RSS via X-Accel-Redirect"
-  )
-}
-
-object FaciaPressMetrics {
-  object FrontPressSuccess extends CountMetric(
-    "facia-front-press-success",
-    "Number of times facia-tool has successfully pressed"
-  )
-
-  object FrontPressLiveSuccess extends CountMetric(
-    "front-press-live-success",
-    "Number of times facia-tool has successfully pressed live"
-  )
-
-  object FrontPressLiveFailure extends CountMetric(
-    "front-press-live-failure",
-    "Number of times facia-tool has had a failure in pressing live"
-  )
-
-  object FrontPressFailure extends CountMetric(
-    "facia-front-press-failure",
-    "Number of times facia-tool has had a failure in pressing"
-  )
-
-  object FrontPressDraftSuccess extends CountMetric(
-    "front-press-draft-success",
-    "Number of times facia-tool has successfully pressed draft"
-  )
-
-  object FrontPressDraftFailure extends CountMetric(
-    "front-press-draft-failure",
-    "Number of times facia-tool has had a failure in pressing draft"
-  )
-
-  object FrontPressCronSuccess extends CountMetric(
-    "front-press-cron-success",
-    "Number of times facia-tool cron job has successfully pressed"
-  )
-
-  object FrontPressCronFailure extends CountMetric(
-    "front-press-cron-failure",
-    "Number of times facia-tool cron job has had a failure in pressing"
-  )
-
-  object MemcachedFallbackMetric extends CountMetric(
-    "content-api-fallbacks",
-    "Number of times the Memcached Fallback was used"
-  )
-
-  object ContentApiSeoRequestSuccess extends CountMetric(
-    "content-api-seo-request-success",
-    "Number of times facia-tool has successfully made the request for SEO purposes of webTitle and section"
-  )
-
-  object ContentApiSeoRequestFailure extends CountMetric(
-    "content-api-seo-request-failure",
-    "Number of times facia-tool has failed to made the request for SEO purposes of webTitle and section"
-  )
-
-}
-
 object FaciaToolMetrics {
   object ApiUsageCount extends CountMetric(
     "api-usage",
@@ -318,59 +222,6 @@ object FaciaToolMetrics {
   )
 }
 
-object CommercialMetrics {
-
-  object TravelOffersLoadTimingMetric extends FrontendTimingMetric(
-    "commercial-travel-offers-load",
-    "Time spent running travel offers data load jobs"
-  )
-
-  object MasterClassesLoadTimingMetric extends FrontendTimingMetric(
-    "commercial-masterclasses-load",
-    "Time spent running MasterClasses load jobs"
-  )
-
-  object JobsLoadTimingMetric extends FrontendTimingMetric(
-    "commercial-jobs-load",
-    "Time spent running job ad data load jobs"
-  )
-
-  object SoulmatesLoadTimingMetric extends FrontendTimingMetric(
-    "commercial-soulmates-load",
-    "Time spent running soulmates ad data load jobs"
-  )
-
-  val all = Seq(TravelOffersLoadTimingMetric, JobsLoadTimingMetric, MasterClassesLoadTimingMetric, SoulmatesLoadTimingMetric)
-}
-
-object OnwardMetrics {
-  object OnwardLoadTimingMetric extends FrontendTimingMetric(
-    "onward-most-popular-load",
-    "Time spent running onward journey data load jobs"
-  )
-
-  val all = Seq(OnwardLoadTimingMetric)
-}
-
-object PerformanceMetrics {
-  val dogPileHitMetric = CountMetric(
-    "dogpile-hits",
-    "Count of hits through use of DogPile action"
-  )
-
-  val dogPileMissMetric = CountMetric(
-    "dogpile-miss",
-    "Count of misses through use of DogPile action"
-  )
-}
-
-object WeatherMetrics {
-  val whatIsMyCityRequests = CountMetric(
-    "what-is-my-city-requests",
-    "Count of requests for user's location"
-  )
-}
-
 trait CloudWatchApplicationMetrics extends GlobalSettings {
   import common.MemcachedMetrics._
   val applicationMetricsNamespace: String = "Application"
@@ -380,7 +231,7 @@ trait CloudWatchApplicationMetrics extends GlobalSettings {
 
   def systemMetrics: List[FrontendMetric] = List(SystemMetrics.MaxHeapMemoryMetric,
     SystemMetrics.UsedHeapMemoryMetric, SystemMetrics.TotalPhysicalMemoryMetric, SystemMetrics.FreePhysicalMemoryMetric,
-    SystemMetrics.AvailableProcessorsMetric, SystemMetrics.BuildNumberMetric, SystemMetrics.FreeDiskSpaceMetric,
+    SystemMetrics.AvailableProcessorsMetric, SystemMetrics.FreeDiskSpaceMetric,
     SystemMetrics.TotalDiskSpaceMetric, SystemMetrics.MaxFileDescriptorsMetric,
     SystemMetrics.OpenFileDescriptorsMetric) ++ SystemMetrics.garbageCollectors.flatMap{ gc => List(
       GaugeMetric(s"${gc.name}-gc-count-per-min" , "Used heap memory (MB)",

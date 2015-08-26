@@ -16,7 +16,7 @@ import scala.collection.JavaConversions._
  */
 trait LinkTo extends Logging {
 
-  lazy val host = Configuration.site.host
+  lazy val host = "www.theguardian.com"
 
   private val AbsoluteGuardianUrl = "^http://www.theguardian.com/(.*)$".r
   private val AbsolutePath = "^/(.+)".r

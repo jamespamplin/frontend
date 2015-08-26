@@ -8,7 +8,6 @@ import contentapi.Paths
 import layout.DateHeadline.cardTimestampDisplay
 import layout._
 import model._
-import model.meta.{ItemList, ListItem}
 import org.joda.time.{DateTimeZone, DateTime}
 import play.api.mvc.RequestHeader
 import slices.{ContainerDefinition, Fixed, FixedContainers}
@@ -146,16 +145,6 @@ object IndexPage {
         })
       })
     }))
-  }
-
-  def makeLinkedData(indexPage: IndexPage)(implicit request: RequestHeader): ItemList = {
-    ItemList(
-      LinkTo(indexPage.page.url),
-      indexPage.trails.zipWithIndex.map {
-        case (trail, index) =>
-          ListItem(position = index, url = Some(LinkTo(trail.url)))
-      }
-    )
   }
 
 }

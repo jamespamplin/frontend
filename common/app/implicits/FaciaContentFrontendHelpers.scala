@@ -2,7 +2,6 @@ package implicits
 
 import com.gu.contentapi.client.model.Element
 import com.gu.facia.api.models.{FaciaContent, ImageSlideshow, Replace}
-import common.dfp.DfpAgent
 import implicits.Dates._
 import implicits.FaciaContentImplicits._
 import model._
@@ -61,7 +60,7 @@ object FaciaContentFrontendHelpers {
 
     def mainVideo: Option[VideoElement] = videos.find(_.isMain).headOption
 
-    def isAdvertisementFeature: Boolean = DfpAgent.isAdvertisementFeature(frontendTags, faciaContent.maybeSection)
+    def isAdvertisementFeature: Boolean = false
 
     lazy val shouldHidePublicationDate: Boolean = {
       isAdvertisementFeature && faciaContent.webPublicationDateOption.exists(_.isOlderThan(2.weeks))

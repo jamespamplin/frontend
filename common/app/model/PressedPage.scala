@@ -1,7 +1,6 @@
 package model
 
 import com.gu.facia.api.models._
-import common.dfp.{AdSize, AdSlot, DfpAgent}
 import common.{Edition, NavItem}
 import conf.Configuration
 import contentapi.Paths
@@ -75,40 +74,19 @@ case class PressedPage(id: String,
 
   override lazy val contentType: String = if (isNetworkFront) GuardianContentTypes.NetworkFront else GuardianContentTypes.Section
 
-  override def isSponsored(maybeEdition: Option[Edition] = None): Boolean =
-    keywordIds exists (DfpAgent.isSponsored(_, Some(section), maybeEdition))
+  override def isSponsored(maybeEdition: Option[Edition] = None): Boolean = false
   override def hasMultipleSponsors = false // Todo: need to think about this
-  override lazy val isAdvertisementFeature = keywordIds exists (DfpAgent.isAdvertisementFeature(_,
-      Some(section)))
+  override lazy val isAdvertisementFeature = false
   override def hasMultipleFeatureAdvertisers = false // Todo: need to think about this
-  override lazy val isFoundationSupported = keywordIds exists (DfpAgent.isFoundationSupported(_,
-      Some(section)))
-  override def sponsor = keywordIds.flatMap(DfpAgent.getSponsor(_)).headOption
-  override def hasPageSkin(edition: Edition) = DfpAgent.isPageSkinned(adUnitSuffix, edition)
-
-  override def sizeOfTakeoverAdsInSlot(slot: AdSlot, edition: Edition): Seq[AdSize] = {
-    DfpAgent.sizeOfTakeoverAdsInSlot(slot, adUnitSuffix, edition)
-  }
-
-  override def hasAdInBelowTopNavSlot(edition: Edition): Boolean = {
-    DfpAgent.hasAdInTopBelowNavSlot(adUnitSuffix, edition)
-  }
-  override def omitMPUsFromContainers(edition: Edition): Boolean = {
-    DfpAgent.omitMPUsFromContainers(id, edition)
-  }
+  override lazy val isFoundationSupported = false
 
   def allItems = collections.flatMap(_.curatedPlusBackfillDeduplicated).distinct
 
-  override def openGraph: Map[String, String] = super.openGraph ++ Map(
-    "og:image" -> Configuration.facebook.imageFallback) ++
-    optionalMapEntry("og:description", description)  ++
-    optionalMapEntry("og:image", frontProperties.imageUrl)
+  override def openGraph: Map[String, String] = super.openGraph
 
 
   override def cards: List[(String, String)] = super.cards ++
     List("twitter:card" -> "summary")
-
-  override def customSignPosting: Option[NavItem] = FaciaSignpostingOverrides(id)
 
   private def optionalMapEntry(key:String, o: Option[String]): Map[String, String] =
     o.map(value => Map(key -> value)).getOrElse(Map())

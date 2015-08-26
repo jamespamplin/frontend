@@ -2,13 +2,11 @@ package layout
 
 import com.gu.facia.api.models.{CollectionConfig, FaciaContent}
 import common.LinkTo
-import common.dfp.{DfpAgent, SponsorshipTag}
 import conf.Switches
 import implicits.FaciaContentFrontendHelpers._
 import implicits.FaciaContentImplicits._
 import model.PressedPage
 import model.facia.PressedCollection
-import model.meta.{ItemList, ListItem}
 import org.joda.time.DateTime
 import play.api.mvc.RequestHeader
 import services.CollectionConfigWithId
@@ -100,11 +98,11 @@ case class CollectionEssentials(
 
 object ContainerCommercialOptions {
   def fromConfig(config: CollectionConfig) = ContainerCommercialOptions(
-    DfpAgent.isSponsored(config),
-    DfpAgent.isAdvertisementFeature(config),
-    DfpAgent.isFoundationSupported(config),
-    DfpAgent.sponsorshipTag(config),
-    DfpAgent.sponsorshipType(config)
+    false,
+    false,
+    false,
+    None,
+    None
   )
 
   val empty = ContainerCommercialOptions(
@@ -120,7 +118,7 @@ case class ContainerCommercialOptions(
   isSponsored: Boolean,
   isAdvertisementFeature: Boolean,
   isFoundationSupported: Boolean,
-  sponsorshipTag: Option[SponsorshipTag],
+  sponsorshipTag: Option[String],
   sponsorshipType: Option[String]
 ) {
   val isPaidFor = isSponsored || isAdvertisementFeature || isFoundationSupported
@@ -417,24 +415,6 @@ object Front extends implicits.Collections {
       }._2
     )
 
-  }
-
-  def makeLinkedData(url: String, collections: Seq[FaciaContainer])(implicit request: RequestHeader): ItemList = {
-    ItemList(
-      LinkTo(url),
-      collections.zipWithIndex.map {
-        case (collection, index) =>
-          ListItem(position = index, item = Some(
-            ItemList(
-              LinkTo(url), // don't have a uri for each container
-              collection.items.zipWithIndex.map {
-                case (item, index) =>
-                  ListItem(position = index, url = Some(LinkTo(item.url)))
-              }
-            )
-          ))
-      }
-    )
   }
 
 }

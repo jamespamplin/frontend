@@ -2,7 +2,6 @@ package controllers
 
 import play.api.mvc.{Action, Controller}
 import scala.concurrent.ExecutionContext.Implicits.global
-import com.gu.googleauth.{UserIdentity, GoogleAuth, GoogleAuthConfig}
 import scala.concurrent.Future
 import play.api.libs.json.Json
 import conf.Configuration

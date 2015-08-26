@@ -47,6 +47,10 @@ class GuardianConfiguration(val application: String, val webappConfDirectory: St
     lazy val isPreview = projectName == "preview"
   }
 
+  object switches {
+    lazy val key = configuration.getMandatoryStringProperty("switches.key")
+  }
+
   override def toString = configuration.toString
 
   case class Auth(user: String, password: String)
@@ -73,10 +77,6 @@ class GuardianConfiguration(val application: String, val webappConfDirectory: St
   object frontend {
     lazy val store = configuration.getMandatoryStringProperty("frontend.store")
   }
-
-  // object site {
-  //   lazy val host = configuration.getStringProperty("guardian.page.host").getOrElse("")
-  // }
 
   object facia {
     lazy val stage = configuration.getStringProperty("facia.stage").getOrElse(Configuration.environment.stage)

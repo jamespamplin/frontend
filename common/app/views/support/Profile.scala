@@ -3,7 +3,6 @@ package views.support
 import java.net.{URI, URISyntaxException}
 import common.Logging
 import conf.Switches.ImageServerSwitch
-import conf.Configuration
 import layout.WidthsByBreakpoint
 import model.{Content, ImageAsset, ImageContainer, MetaData}
 import org.apache.commons.math3.fraction.Fraction
@@ -89,30 +88,9 @@ object Naked extends Profile(None, None)
 
 object ImgSrc extends Logging {
 
-  private val imageHost = Configuration.images.path
-
-  private case class HostMapping(prefix: String, token: String)
-
-  private lazy val hostPrefixMapping: Map[String, HostMapping] = Map(
-    "static.guim.co.uk" -> HostMapping("static", Configuration.images.backends.staticToken),
-    "media.guim.co.uk" -> HostMapping("media", Configuration.images.backends.mediaToken)
-  )
-
-  private val supportedImages = Set(".jpg", ".jpeg", ".png")
-
   def apply(url: String, imageType: ElementProfile): String = {
     try {
-      val uri = new URI(url.trim)
-
-      val isSupportedImage = supportedImages.exists(extension => uri.getPath.toLowerCase.endsWith(extension))
-
-      hostPrefixMapping.get(uri.getHost)
-        .filter(const(ImageServerSwitch.isSwitchedOn))
-        .filter(const(isSupportedImage))
-        .map { host =>
-          val signedPath = ImageUrlSigner.sign(s"${uri.getPath}${imageType.resizeString}", host.token)
-          s"$imageHost/img/${host.prefix}$signedPath"
-        }.getOrElse(url)
+      s"/img/"
     } catch {
       case error: URISyntaxException =>
         log.error("Unable to decode image url", error)

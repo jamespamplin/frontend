@@ -2,7 +2,6 @@ package model
 
 import play.api.mvc.{RequestHeader, Results}
 import play.api.mvc.Result
-import conf.Configuration.ajax.corsOrigins
 
 object Cors extends Results {
 
@@ -16,7 +15,7 @@ object Cors extends Results {
       case None => result
       case Some(requestOrigin) => {
         val headers = allowedMethods.map("Access-Control-Allow-Methods" -> _).toList ++ List(
-          "Access-Control-Allow-Origin" -> corsOrigins.find(_ == requestOrigin).getOrElse("*"),
+          "Access-Control-Allow-Origin" -> "*",
           "Access-Control-Allow-Headers" -> responseHeaders,
           "Access-Control-Allow-Credentials" -> "true")
         result.withHeaders(headers: _*)
