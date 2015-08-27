@@ -62,7 +62,7 @@ static/requirejs
 static/target
 
 static/src/bundles
-static/src/systemjs-bundle-config.js
+static/src/systemjs-bundle-config.json
 static/src/stylesheets/icons/*
 
 # Eclipse #
