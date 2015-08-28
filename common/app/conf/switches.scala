@@ -625,6 +625,15 @@ object Switches {
   )
 
   // Features
+  val OfflinePageSwitch = Switch(
+    "Feature",
+    "offline-page",
+    "Offline page",
+    safeState = Off,
+    sellByDate = new LocalDate(2015, 9, 30),
+    exposeClientSide = true
+  )
+
   val InternationalEditionSwitch = Switch(
     "Feature",
     "international-edition",
