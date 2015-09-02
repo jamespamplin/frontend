@@ -4,7 +4,9 @@ import com.gu.contentapi.client.model.{Content => ApiContent, Crossword}
 import conf.LiveContentApi
 import model.Cached
 import com.gu.contentapi.client.{model => contentapi}
+import com.gu.contentapi.client.model.{Crossword, Content => ApiContent}
 import common.{Edition, ExecutionContexts}
+import conf.LiveContentApi
 import crosswords.{CrosswordData, CrosswordPage}
 import play.api.mvc.{RequestHeader, Result, Action, Controller}
 import services.ContentApiGetters._
@@ -32,6 +34,7 @@ object WebAppController extends Controller with ExecutionContexts {
   def manifest() = Action {
     Cached(3600) { Ok(templates.js.webAppManifest()) }
   }
+
 
   protected def withCrossword(crosswordType: String, id: Int)(f: (Crossword, ApiContent) => Result)(implicit request: RequestHeader): Future[Result] = {
     LiveContentApi.getResponse(LiveContentApi.item(s"crosswords/series/quick", Edition(request)).showFields("all")).map { response =>
